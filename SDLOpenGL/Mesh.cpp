@@ -1,0 +1,81 @@
+#include"Mesh.h"
+#include <vector>
+
+
+Mesh::Mesh(Vertex* vertices, unsigned int numVertices)
+{
+	m_drawCount = numVertices;
+	glGenVertexArrays(1, &m_vertexArrayObject);
+	//分配顶点数组对象
+	glBindVertexArray(m_vertexArrayObject);
+	//绑定数组对象,相当于声明之后的操作,都是对数组对象的操作
+
+
+	std::vector<glm::vec3> positios;
+	std::vector<glm::vec2> texCoord;
+	positios.reserve(numVertices);
+	texCoord.reserve(numVertices);
+	for (unsigned int i = 0; i < numVertices; i++)
+	{
+		positios.push_back(*vertices[i].GetPos());
+		texCoord.push_back(*vertices[i].GetTexCoord());
+	}
+	/*分配顶点缓存对象
+		数组对象将被保存在缓存对象中
+	*/
+	glGenBuffers(NUM_BUFFERS, m_vertexArrayBuffers);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[POSITION_VB]);
+	/*将顶点数据保存在缓存对象中
+		完成2个任务:
+			1.分配顶点数据所需的存储空间
+			2.将数据从运存中的数组copy到opengl服务端的内存中
+			  GL_STATIC_DRAW:对分配数据的读取和写入的方式,因为这里只是绘制点,
+			  运行时不会对它进行修改,顾设置为静态.
+	*/
+	glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(positios[0]), &positios[0], GL_STATIC_DRAW);
+	//启用和着色器中属性位置索引相关联的顶点数组
+	glEnableVertexAttribArray(0);//0:着色器中属性位置索引
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	/*关联一个顶点属性数组
+		参数1:对应着色器中属性位置
+		参数2 : 每个顶点需要更新的分量数目 xyz所以是3
+		参数3 : 没个分量的数据类型
+		参数4 : 设置顶点数据在输入前是否需要归一化
+		参数5 : 数组中每两个元素之间的大小偏移值
+		参数6 : 缓存对象起始位置在数组中的偏移值
+	*/
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[TEXCOORD_VB]);
+	/*将顶点数据保存在缓存对象中
+		完成2个任务:
+			1.分配顶点数据所需的存储空间
+			2.将数据从运存中的数组copy到opengl服务端的内存中
+			  GL_STATIC_DRAW:对分配数据的读取和写入的方式,因为这里只是绘制点,
+			  运行时不会对它进行修改,顾设置为静态.
+	*/
+	glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(texCoord[0]), &texCoord[0], GL_STATIC_DRAW);
+	//启用和着色器中属性位置索引相关联的顶点数组
+	glEnableVertexAttribArray(1);//1:着色器中属性位置索引
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	/*关联一个顶点属性数组
+		参数1:对应着色器中属性位置
+		参数2 : 每个顶点需要更新的分量数目 xyz所以是3
+		参数3 : 没个分量的数据类型
+		参数4 : 设置顶点数据在输入前是否需要归一化
+		参数5 : 数组中每两个元素之间的大小偏移值
+		参数6 : 缓存对象起始位置在数组中的偏移值
+	*/
+
+
+
+	glBindVertexArray(0);//不再使用任何分配的数组对象
+}
+Mesh::~Mesh() {
+	glDeleteVertexArrays(1,&m_vertexArrayObject);
+}
+void Mesh::Draw() {
+	glBindVertexArray(m_vertexArrayObject);
+	glDrawArrays(GL_TRIANGLE_STRIP,0,m_drawCount); 
+	glBindVertexArray(0);
+}
