@@ -5,9 +5,10 @@
 class Display
 {
 public:
-	Display(int widh,int height,const std::string&title);
+	Display(int widh, int height, const std::string& title);
 	void Update();
 	bool Isclosed();
+	void Clear(float r, float g, float b, float a);
 	~Display();
 
 private:

@@ -9,13 +9,13 @@ static std::string LoadShader(const std::string& fileName);
 Shader::Shader(const std::string& fileName)
 {
 	m_program = glCreateProgram();
-	m_shaders[0] = Createshader(LoadShader(fileName +".vs"), GL_VERTEX_SHADER);
+	m_shaders[0] = Createshader(LoadShader(fileName + ".vs"), GL_VERTEX_SHADER);
 	m_shaders[1] = Createshader(LoadShader(fileName + ".fs"), GL_FRAGMENT_SHADER);
 	for (unsigned int i = 0; i < NUM_SHADERS; i++)
 	{
 		glAttachShader(m_program, m_shaders[i]);
 	}
-	glBindAttribLocation(m_program,0,"position");
+	glBindAttribLocation(m_program, 0, "position");
 
 	glBindAttribLocation(m_program, 1, "texCoord");
 
@@ -23,9 +23,16 @@ Shader::Shader(const std::string& fileName)
 	CheckShaderError(m_program, GL_LINK_STATUS, true, "Error:Link program failed");
 	glValidateProgram(m_program);
 	CheckShaderError(m_program, GL_VALIDATE_STATUS, true, "Error:Validate program failed");
+	m_uniform[TRANSFORM_U] = glGetUniformLocation(m_program, "transform");
+
 }
 void Shader::Bind() {
 	glUseProgram(m_program);
+}
+void Shader::Update(const Transform transform, const Camera camera) {
+	glm::mat4 mod = camera.GetViewProjection()*transform.GetModel();
+	glUniformMatrix4fv(m_uniform[TRANSFORM_U],1,GL_FALSE, &mod[0][0]);//1:计数,这里是1
+
 }
 Shader::~Shader()
 {
