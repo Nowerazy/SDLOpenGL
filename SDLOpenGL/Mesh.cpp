@@ -1,10 +1,12 @@
 #include"Mesh.h"
 #include <vector>
 
+#define TINYOBJLOADER_IMPLEMENTATION 
+#include"tinyObjLoader.h"
 
-Mesh::Mesh(Vertex* vertices, unsigned int numVertices)
+Mesh::Mesh(Vertex* vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices)
 {
-	m_drawCount = numVertices;
+	m_drawCount = numIndices;
 	glGenVertexArrays(1, &m_vertexArrayObject);
 	//分配顶点数组对象
 	glBindVertexArray(m_vertexArrayObject);
@@ -67,15 +69,70 @@ Mesh::Mesh(Vertex* vertices, unsigned int numVertices)
 		参数6 : 缓存对象起始位置在数组中的偏移值
 	*/
 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexArrayBuffers[INDEX_VB]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
+	/*element may not bind VertexAttribArray,so glEnableVertexAttribArray(1)
+		&glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0) will no use.*/
 
 
 	glBindVertexArray(0);//不再使用任何分配的数组对象
 }
+Mesh::Mesh(const std::string& fileName) {
+	m_drawCount = 0;
+	tinyobj::attrib_t attrib;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+	std::string warn;
+	std::string err;
+	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, fileName.c_str(),
+		NULL, true);
+
+	std::vector<float> posVb = attrib.vertices;
+	std::vector<float> texcoordVb = attrib.texcoords;
+
+	std::vector<float> texcoordIndex;
+	std::vector<int> indices;
+
+	for (unsigned int i = 0; i < shapes.size(); i++)
+	{
+		m_drawCount += shapes[i].mesh.indices.size();
+	}
+	indices.reserve(m_drawCount);
+	texcoordIndex.reserve(m_drawCount * 2);
+	for (unsigned int j = 0; j < shapes.size(); j++)
+		for (unsigned int i = 0; i < shapes[j].mesh.indices.size(); i++)
+		{
+			indices.push_back(shapes[j].mesh.indices[i].vertex_index);
+			int txInd = shapes[j].mesh.indices[i].texcoord_index;
+			txInd <<= 1;
+			texcoordIndex.push_back(texcoordVb[txInd]);
+			texcoordIndex.push_back(texcoordVb[txInd + 1]);
+		}
+	glGenVertexArrays(1, &m_vertexArrayObject);
+	glBindVertexArray(m_vertexArrayObject);
+	glGenBuffers(NUM_BUFFERS, m_vertexArrayBuffers);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[POSITION_VB]);
+	glBufferData(GL_ARRAY_BUFFER, posVb.size() * sizeof(posVb[0]), &posVb[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[TEXCOORD_VB]);
+	glBufferData(GL_ARRAY_BUFFER, texcoordIndex.size() * sizeof(texcoordIndex[0]), &texcoordIndex[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexArrayBuffers[INDEX_VB]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_drawCount * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
+	glBindVertexArray(0);
+
+
+
+
+}
 Mesh::~Mesh() {
-	glDeleteVertexArrays(1,&m_vertexArrayObject);
+	glDeleteVertexArrays(1, &m_vertexArrayObject);
 }
 void Mesh::Draw() {
 	glBindVertexArray(m_vertexArrayObject);
-	glDrawArrays(GL_TRIANGLE_STRIP,0,m_drawCount); 
+	//glDrawArrays(GL_TRIANGLE_STRIP,0,m_drawCount); 
+	glDrawElements(GL_TRIANGLE_STRIP, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }

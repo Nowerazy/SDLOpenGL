@@ -140,6 +140,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="tinyObjLoader.h" />
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
