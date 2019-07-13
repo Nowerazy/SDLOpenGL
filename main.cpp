@@ -32,17 +32,42 @@ int main(int argc, char** argv) {
 	Texture texture("./res/1.jpg");
 	Transform transform;
 	Camera camera(glm::vec3(0, 0, -15), 70.0f, (float)WIDTH / (float)HEIGHT, 0.01f, 1000.0f);
-	
+
 	float count = 0.0f;
+	float  accz = 0;
+	int accZ = 0;
 	while (!display.Isclosed())
 	{
 		display.Clear(0.0f, 0.2f, 0.2f, 1.0f);
-		float sinCount = sinf(count);
-		float cosCount = cosf(count);
-		transform.GetPos()->x = sinCount;
-		//transform.GetPos()->z = cosCount;
-		transform.GetRot()->x = sinCount * 1;
-		transform.GetRot()->y = cosCount * 4;
+		//float sinCount = sinf(count);
+		//float cosCount = cosf(count);
+		//transform.GetPos()->x = sinCount;
+		//transform.GetRot()->x = sinCount * 1;
+		//transform.GetRot()->y = cosCount * 4;
+		transform.GetRot()->y = (float)display.accumuMoveSize[0] / 360;
+		transform.GetRot()->x = -(float)display.accumuMoveSize[1] / 360;
+		if (accZ != -(float)display.accumuMoveSize[2]) {
+
+			accZ = -(float)display.accumuMoveSize[2];
+			accz = (float)accZ / 30;
+		}
+		else
+		{
+			if (accz<0.0001f && accz>-0.0001f)
+			{
+				accz = 0;
+			}
+			else
+			{
+				accz *= 0.98;
+			}
+		}
+		transform.GetPos()->x = -(float)display.accumuMoveSize[3] / 150;
+		transform.GetPos()->y = -(float)display.accumuMoveSize[4] / 150;
+		transform.GetPos()->z += accz;
+
+
+
 		shader.Bind();
 		texture.Bind();
 		shader.Update(transform, camera);

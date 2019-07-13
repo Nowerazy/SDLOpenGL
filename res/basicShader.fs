@@ -2,8 +2,9 @@
 uniform sampler2D diffuse;
 varying vec2 texCoord0;
 varying vec3 normal0;
-
+varying vec3 lightway;
 void main()
 {
-	gl_FragColor = texture2D(diffuse, texCoord0)*clamp(dot(vec3(0,1,1),normal0) , 0.2 , 1.0);
+	gl_FragColor = texture2D(diffuse, texCoord0)*
+	clamp(dot(lightway,normal0) , 0.1 , 1.0);
 }
