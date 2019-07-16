@@ -34,7 +34,7 @@ Mesh::Mesh(Vertex* vertices, unsigned int numVertices, unsigned int* indices, un
 			  GL_STATIC_DRAW:对分配数据的读取和写入的方式,因为这里只是绘制点,
 			  运行时不会对它进行修改,顾设置为静态.
 	*/
-	glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(positios[0]), &positios[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(positios[0]), &positios[0], GL_DYNAMIC_DRAW);
 	//启用和着色器中属性位置索引相关联的顶点数组
 	glEnableVertexAttribArray(0);//0:着色器中属性位置索引
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -56,7 +56,7 @@ Mesh::Mesh(Vertex* vertices, unsigned int numVertices, unsigned int* indices, un
 			  GL_STATIC_DRAW:对分配数据的读取和写入的方式,因为这里只是绘制点,
 			  运行时不会对它进行修改,顾设置为静态.
 	*/
-	glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(texCoord[0]), &texCoord[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(texCoord[0]), &texCoord[0], GL_DYNAMIC_DRAW);
 	//启用和着色器中属性位置索引相关联的顶点数组
 	glEnableVertexAttribArray(1);//1:着色器中属性位置索引
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
@@ -70,7 +70,7 @@ Mesh::Mesh(Vertex* vertices, unsigned int numVertices, unsigned int* indices, un
 	*/
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexArrayBuffers[INDEX_VB]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), &indices[0], GL_DYNAMIC_DRAW);
 	/*element may not bind VertexAttribArray,so glEnableVertexAttribArray(1)
 		&glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0) will no use.*/
 
@@ -120,23 +120,22 @@ Mesh::Mesh(const std::string& fileName) {
 	glBindVertexArray(m_vertexArrayObject);
 	glGenBuffers(NUM_BUFFERS, m_vertexArrayBuffers);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[POSITION_VB]);
-	glBufferData(GL_ARRAY_BUFFER, posVb.size() * sizeof(posVb[0]), &posVb[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, posVb.size() * sizeof(posVb[0]), &posVb[0], GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[TEXCOORD_VB]);
-	glBufferData(GL_ARRAY_BUFFER, texcoordIndex.size() * sizeof(texcoordIndex[0]), &texcoordIndex[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, texcoordIndex.size() * sizeof(texcoordIndex[0]), &texcoordIndex[0], GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexArrayBuffers[INDEX_VB]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_drawCount * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_drawCount * sizeof(indices[0]), &indices[0], GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[NORMALVB]);
-	glBufferData(GL_ARRAY_BUFFER, normalIndex.size() * sizeof(normalIndex[0]), &normalIndex[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, normalIndex.size() * sizeof(normalIndex[0]), &normalIndex[0], GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
 	glBindVertexArray(0);
 
 
