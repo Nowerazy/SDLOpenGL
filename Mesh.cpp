@@ -1,11 +1,11 @@
 #include"Mesh.h"
-#include <vector>
-
+#include <iostream>
 #define TINYOBJLOADER_IMPLEMENTATION 
 #include"tinyObjLoader.h"
 
-Mesh::Mesh(Vertex* vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices)
+Mesh::Mesh(vector<Vertex> vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices)
 {
+	std::cout << "{" << numVertices << "}" << std::endl;
 	m_drawCount = numIndices;
 	glGenVertexArrays(1, &m_vertexArrayObject);
 	//分配顶点数组对象
@@ -34,7 +34,9 @@ Mesh::Mesh(Vertex* vertices, unsigned int numVertices, unsigned int* indices, un
 			  GL_STATIC_DRAW:对分配数据的读取和写入的方式,因为这里只是绘制点,
 			  运行时不会对它进行修改,顾设置为静态.
 	*/
-	glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(positios[0]), &positios[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(positios[0]), NULL, GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, m_drawCount * sizeof(positios[0]), &positios[0]);
+
 	//启用和着色器中属性位置索引相关联的顶点数组
 	glEnableVertexAttribArray(0);//0:着色器中属性位置索引
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -63,14 +65,14 @@ Mesh::Mesh(Vertex* vertices, unsigned int numVertices, unsigned int* indices, un
 	/*关联一个顶点属性数组
 		参数1:对应着色器中属性位置
 		参数2 : 每个顶点需要更新的分量数目 xyz所以是3
-		参数3 : 没个分量的数据类型
+		参数3 : 每个分量的数据类型
 		参数4 : 设置顶点数据在输入前是否需要归一化
 		参数5 : 数组中每两个元素之间的大小偏移值
 		参数6 : 缓存对象起始位置在数组中的偏移值
 	*/
-
+/*
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexArrayBuffers[INDEX_VB]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), &indices[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), &indices[0], GL_DYNAMIC_DRAW);*/
 	/*element may not bind VertexAttribArray,so glEnableVertexAttribArray(1)
 		&glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0) will no use.*/
 
@@ -145,10 +147,21 @@ Mesh::Mesh(const std::string& fileName) {
 Mesh::~Mesh() {
 	glDeleteVertexArrays(1, &m_vertexArrayObject);
 }
+void Mesh::Update(vector<Vertex> vertices) {
+	std::vector<glm::vec3> newpositios;
+	newpositios.clear();
+	for (unsigned int i = 0; i < vertices.size(); i++)
+	{
+		newpositios.push_back(*vertices[i].GetPos());
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[POSITION_VB]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, m_drawCount * sizeof(newpositios[0]), &newpositios[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+};
 void Mesh::Draw() {
 	glBindVertexArray(m_vertexArrayObject);
-	//glDrawArrays(GL_TRIANGLE_STRIP,0,m_drawCount); 
+	glDrawArrays(GL_TRIANGLES, 0, m_drawCount);
 	//glDrawElements(GL_TRIANGLE_STRIP, m_drawCount, GL_UNSIGNED_INT, 0);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }

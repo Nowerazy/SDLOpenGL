@@ -2,6 +2,8 @@
 #include "glm/glm.hpp"
 #include"GL/glew.h"
 #include<string>
+#include <vector>
+using namespace std;
 class Vertex
 {
 public:
@@ -10,7 +12,7 @@ public:
 		this->texCoord = texCoord;
 	}
 	inline glm::vec3* GetPos() { return &pos; };
-	inline glm::vec2* GetTexCoord() { return &texCoord;};
+	inline glm::vec2* GetTexCoord() { return &texCoord; };
 
 private:
 	glm::vec3 pos;
@@ -19,10 +21,11 @@ private:
 class Mesh
 {
 public:
-	Mesh(Vertex* vertices, unsigned int numVertices,unsigned int* indices,unsigned int numIndices);
+	Mesh(vector<Vertex> vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices);
 	Mesh(const std::string& fileName);
 	~Mesh();
-	void Draw(); 
+	void 	Update(vector<Vertex> vertices);
+	void Draw();
 private:
 	enum {
 		POSITION_VB,
