@@ -18,6 +18,7 @@ int main(int argc, char** argv) {
 	Rain rainpools[RAINNUM];
 	vector<Vertex> rainVertexpools;
 	vector<Vertex> te;
+	rainVertexpools.clear();
 	for (int i = 0; i < RAINNUM; i++)
 	{
 		rainpools[i].UpdateSpeed(0.01f, 0.02f, 0.1f);
@@ -25,7 +26,7 @@ int main(int argc, char** argv) {
 		rainVertexpools.insert(rainVertexpools.end(), te.begin(), te.end());
 		//std::cout << "{" << rainpools[i].tostring() << "}" << std::endl;
 	}
-	Vertex vertices[] = {
+	/*Vertex vertices[] = {
 		Vertex(glm::vec3(-1.0,1.0,0),glm::vec2(1.0,0)),
 		Vertex(glm::vec3(-1.0,-1.0,0),glm::vec2(1.0,1.0)),
 		Vertex(glm::vec3(1.0,1.0,0),glm::vec2(0,0)),
@@ -37,23 +38,20 @@ int main(int argc, char** argv) {
 		Vertex(glm::vec3(1.0,0.2,0),glm::vec2(0,0.4)),
 	};
 	unsigned int indices0[] = { 0,1,2,2,1,3 };
-	int re = rainVertexpools.size();
 	unsigned int indices[] = { 6,1,7,1,7,3 };
-	unsigned int indices2[] = { 0,4,2,4,2,5 };
-	Shader shader[2] = {
-		//{"rainWave", "rainWave"},
-		{"basicShader", "basicShader"},
-		{"basicShader", "basicShader"}
-	};
+	unsigned int indices2[] = { 0,4,2,4,2,5 };*/
+	int re = rainVertexpools.size();
+	Shader shader("basicShader", "basicShader");
+	shader.AddShader("bgShader", "bgShader");
 
 	/*Mesh mesh(rainVertexpools, rainVertexpools.size(),
 		indices0, sizeof(indices0) / sizeof(indices0[0]));
 */
 	Mesh mesh(rainVertexpools, rainVertexpools.size(),
-		indices0, rainVertexpools.size());
-	//Texture texture("./res/raindown.png");
-	Texture texture("./res/snow.png");
-	//Texture texture("./res/1.jpg");snow
+		nullptr, rainVertexpools.size());
+	string texfiles[] = { "./res/snow.png", "./res/1.jpg" };// "./res/raindown.png" 
+	int texLength = sizeof(texfiles) / sizeof(texfiles[0]);
+	Texture texture(shader, texfiles, texLength);
 
 	Transform transform;
 	//Camera camera(glm::vec3(0, 0, -15), 70.0f, (float)HEIGHT / (float)WIDTH, 0.01f, 1000.0f);
@@ -97,7 +95,7 @@ int main(int argc, char** argv) {
 		transform.GetPos()->y = -(float)display.accumuMoveSize[4] / 150;
 		transform.GetPos()->z += accz;*/
 		rainVertexpools.clear();
-		//std::cout << "To Updated" << std::endl;
+		//std::cout << "To 76766Updated" << std::endl;
 		for (int i = 0; i < RAINNUM; i++)
 		{
 			rainpools[i].Update();
@@ -107,13 +105,19 @@ int main(int argc, char** argv) {
 		}
 		mesh.Update(rainVertexpools);
 
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < texLength; i++)
 		{
-			shader[i].Bind();
-			texture.Bind();
-			shader[i].Update(transform, camera);
+			texture.Bind(i);
+			shader.Bind(i);
+			shader.Update(transform, camera);
+			if (i == 1)
+			{
+				mesh.DrawBG();
+			}
+			else {
+				mesh.Draw();
+			}
 		}
-		mesh.Draw();
 		display.Update();
 		count += 0.001f;
 	}

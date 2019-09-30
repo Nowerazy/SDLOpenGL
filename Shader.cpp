@@ -13,61 +13,68 @@ Shader::Shader()
 
 Shader::Shader(const std::string& fileNamevs, const std::string& fileNamefs)
 {
-	m_program = glCreateProgram();
-	m_shaders[0] = Createshader(LoadShader("./res/" + fileNamevs + ".vs"), GL_VERTEX_SHADER);
-	m_shaders[1] = Createshader(LoadShader("./res/" + fileNamefs + ".fs"), GL_FRAGMENT_SHADER);
+	m_program[SHADERS1] = glCreateProgram();
+	std::cout << "m_program[SHADERS1]:" << m_program[SHADERS1] << std::endl;
+	m_shaders[SHADERS1][0] = Createshader(LoadShader("./res/" + fileNamevs + ".vs"), GL_VERTEX_SHADER);
+	m_shaders[SHADERS1][1] = Createshader(LoadShader("./res/" + fileNamefs + ".fs"), GL_FRAGMENT_SHADER);
 	for (unsigned int i = 0; i < NUM_SHADERS; i++)
 	{
-		glAttachShader(m_program, m_shaders[i]);
+		glAttachShader(m_program[SHADERS1], m_shaders[SHADERS1][i]);
 	}
-	glBindAttribLocation(m_program, 0, "position");
+	glBindAttribLocation(m_program[SHADERS1], 0, "position");
+	glBindAttribLocation(m_program[SHADERS1], 1, "texCoord");
 
-	glBindAttribLocation(m_program, 1, "texCoord");
-	glLinkProgram(m_program);
-	CheckShaderError(m_program, GL_LINK_STATUS, true, "Error:Link program failed");
-	glValidateProgram(m_program);
-	CheckShaderError(m_program, GL_VALIDATE_STATUS, true, "Error:Validate program failed");
-	m_uniform[TRANSFORM_U] = glGetUniformLocation(m_program, "transform");
-	m_uniform[TIME] = glGetUniformLocation(m_program, "iTime");
+	glLinkProgram(m_program[SHADERS1]);
+	CheckShaderError(m_program[SHADERS1], GL_LINK_STATUS, true, "Error:Link program failed");
+	glValidateProgram(m_program[SHADERS1]);
+	CheckShaderError(m_program[SHADERS1], GL_VALIDATE_STATUS, true, "Error:Validate program failed");
+	m_uniform[SHADERS1][TRANSFORM_U] = glGetUniformLocation(m_program[SHADERS1], "transform");
+	m_uniform[SHADERS1][TIME] = glGetUniformLocation(m_program[SHADERS1], "iTime");
 }
 
-void Shader::Bind() {
-	glUseProgram(m_program);
+void Shader::Bind(int glnumb) {
+	glUseProgram(m_program[glnumb]);
+	glLinkProgram(m_program[glnumb]);
+}
+int Shader::getProgramId(int index)
+{
+	return m_program[index];
 }
 void Shader::Update(const Transform transform, const Camera camera) {
 	//glm::mat4 mod = camera.GetViewProjection()*transform.GetModel();
 	//glUniformMatrix4fv(m_uniform[TRANSFORM_U],1,GL_FALSE, &mod[0][0]);//1:计数,这里是1
 	GLfloat time = (GLfloat)clock() / 1000;
-	glUniform1f(m_uniform[TIME], time);
+	glUniform1f(m_uniform[SHADERS1][TIME], time);
 }
 int Shader::AddShader(const std::string& filevs, const std::string& filefs)
 {
-	m_program = glCreateProgram();
-	m_shaders[0] = Createshader(LoadShader(filevs + ".vs"), GL_VERTEX_SHADER);
-	m_shaders[1] = Createshader(LoadShader(filefs + ".fs"), GL_FRAGMENT_SHADER);
+	m_program[SHADERS2] = glCreateProgram();
+	std::cout <<"m_program[SHADERS2]:" <<m_program[SHADERS2] << std::endl;
+	m_shaders[SHADERS2][0] = Createshader(LoadShader("./res/" + filevs + ".vs"), GL_VERTEX_SHADER);
+	m_shaders[SHADERS2][1] = Createshader(LoadShader("./res/" + filefs + ".fs"), GL_FRAGMENT_SHADER);
 	for (unsigned int i = 0; i < NUM_SHADERS; i++)
 	{
-		glAttachShader(m_program, m_shaders[i]);
+		glAttachShader(m_program[SHADERS2], m_shaders[SHADERS2][i]);
 	}
-	glBindAttribLocation(m_program, 0, "position");
-
-	glBindAttribLocation(m_program, 1, "texCoord");
-	glLinkProgram(m_program);
-	CheckShaderError(m_program, GL_LINK_STATUS, true, "Error:Link program failed");
-	glValidateProgram(m_program);
-	CheckShaderError(m_program, GL_VALIDATE_STATUS, true, "Error:Validate program failed");
-	m_uniform[TRANSFORM_U] = glGetUniformLocation(m_program, "transform");
-	m_uniform[TIME] = glGetUniformLocation(m_program, "iTime");
-	return m_program;
+	glBindAttribLocation(m_program[SHADERS2], 0, "bgPosition");
+	glLinkProgram(m_program[SHADERS2]);
+	CheckShaderError(m_program[SHADERS2], GL_LINK_STATUS, true, "Error:Link program failed");
+	glValidateProgram(m_program[SHADERS2]);
+	CheckShaderError(m_program[SHADERS2], GL_VALIDATE_STATUS, true, "Error:Validate program failed");
+	Bind(SHADERS2);
+	return m_program[SHADERS2];
 }
 Shader::~Shader()
 {
 	for (unsigned int i = 0; i < NUM_SHADERS; i++)
 	{
-		glDetachShader(m_program, m_shaders[i]);
-		glDeleteShader(m_shaders[i]);
+		glDetachShader(m_program[i], m_shaders[i][0]);
+		glDetachShader(m_program[i], m_shaders[i][1]);
+		glDeleteShader(m_shaders[i][0]);
+		glDeleteShader(m_shaders[i][1]);
 	}
-	glDeleteProgram(m_program);
+	glDeleteProgram(m_program[0]);
+	glDeleteProgram(m_program[1]);
 }
 
 static void CheckShaderError(GLuint shader, GLuint flag, bool isprogram, const std::string& errorMessage) {

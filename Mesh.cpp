@@ -7,9 +7,9 @@ Mesh::Mesh(vector<Vertex> vertices, unsigned int numVertices, unsigned int* indi
 {
 	std::cout << "{" << numVertices << "}" << std::endl;
 	m_drawCount = numIndices;
-	glGenVertexArrays(1, &m_vertexArrayObject);
+	glGenVertexArrays(2, &m_vertexArrayObject[0]);
 	//分配顶点数组对象
-	glBindVertexArray(m_vertexArrayObject);
+	glBindVertexArray(m_vertexArrayObject[0]);
 	//绑定数组对象,相当于声明之后的操作,都是对数组对象的操作
 
 
@@ -34,8 +34,7 @@ Mesh::Mesh(vector<Vertex> vertices, unsigned int numVertices, unsigned int* indi
 			  GL_STATIC_DRAW:对分配数据的读取和写入的方式,因为这里只是绘制点,
 			  运行时不会对它进行修改,顾设置为静态.
 	*/
-	glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(positios[0]), NULL, GL_DYNAMIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, m_drawCount * sizeof(positios[0]), &positios[0]);
+	glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(positios[0]), &positios[0], GL_DYNAMIC_DRAW);
 
 	//启用和着色器中属性位置索引相关联的顶点数组
 	glEnableVertexAttribArray(0);//0:着色器中属性位置索引
@@ -70,14 +69,25 @@ Mesh::Mesh(vector<Vertex> vertices, unsigned int numVertices, unsigned int* indi
 		参数5 : 数组中每两个元素之间的大小偏移值
 		参数6 : 缓存对象起始位置在数组中的偏移值
 	*/
-/*
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexArrayBuffers[INDEX_VB]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), &indices[0], GL_DYNAMIC_DRAW);*/
-	/*element may not bind VertexAttribArray,so glEnableVertexAttribArray(1)
-		&glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0) will no use.*/
-
+	/*
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexArrayBuffers[INDEX_VB]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), &indices[0], GL_DYNAMIC_DRAW);*/
+		/*element may not bind VertexAttribArray,so glEnableVertexAttribArray(1)
+			&glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0) will no use.*/
 
 	glBindVertexArray(0);//不再使用任何分配的数组对象
+	glBindVertexArray(m_vertexArrayObject[1]);
+	vector<glm::vec3> bgVecs;
+	bgVecs.push_back(glm::vec3(-1.0, 1.0, 0));
+	bgVecs.push_back(glm::vec3(-1.0, -1.0, 0));
+	bgVecs.push_back(glm::vec3(1.0, 1.0, 0));
+	bgVecs.push_back(glm::vec3(-1.0, -1.0, 0));
+	bgVecs.push_back(glm::vec3(1.0, 1.0, 0));
+	bgVecs.push_back(glm::vec3(1.0, -1.0, 0));
+	glBindBuffer(GL_ARRAY_BUFFER, Mesh::m_vertexArrayBuffers[POSITION_BG_VB]);
+	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(bgVecs[0]), &bgVecs[0], GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(2);//0:着色器中属性位置索引
 }
 Mesh::Mesh(const std::string& fileName) {
 	m_drawCount = 0;
@@ -118,8 +128,8 @@ Mesh::Mesh(const std::string& fileName) {
 			normalIndex.push_back(normalVb[norIndex + 1]);
 			normalIndex.push_back(normalVb[norIndex + 2]);
 		}
-	glGenVertexArrays(1, &m_vertexArrayObject);
-	glBindVertexArray(m_vertexArrayObject);
+	glGenVertexArrays(1, &m_vertexArrayObject[0]);
+	glBindVertexArray(m_vertexArrayObject[0]);
 	glGenBuffers(NUM_BUFFERS, m_vertexArrayBuffers);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[POSITION_VB]);
 	glBufferData(GL_ARRAY_BUFFER, posVb.size() * sizeof(posVb[0]), &posVb[0], GL_DYNAMIC_DRAW);
@@ -140,14 +150,12 @@ Mesh::Mesh(const std::string& fileName) {
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindVertexArray(0);
 
-
-
-
 }
 Mesh::~Mesh() {
-	glDeleteVertexArrays(1, &m_vertexArrayObject);
+	glDeleteVertexArrays(2, &m_vertexArrayObject[0]);
 }
 void Mesh::Update(vector<Vertex> vertices) {
+	glBindVertexArray(m_vertexArrayObject[0]);
 	std::vector<glm::vec3> newpositios;
 	newpositios.clear();
 	for (unsigned int i = 0; i < vertices.size(); i++)
@@ -158,8 +166,13 @@ void Mesh::Update(vector<Vertex> vertices) {
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_drawCount * sizeof(newpositios[0]), &newpositios[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 };
+void Mesh::DrawBG() {
+	glBindVertexArray(m_vertexArrayObject[1]);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
+}
 void Mesh::Draw() {
-	glBindVertexArray(m_vertexArrayObject);
+	glBindVertexArray(m_vertexArrayObject[0]);
 	glDrawArrays(GL_TRIANGLES, 0, m_drawCount);
 	//glDrawElements(GL_TRIANGLE_STRIP, m_drawCount, GL_UNSIGNED_INT, 0);
 	//glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);

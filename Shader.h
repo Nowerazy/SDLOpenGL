@@ -9,21 +9,26 @@ public:
 	Shader();
 	Shader(const std::string& fileNamevs, const std::string& fileNamefs);
 	~Shader();
-	void Bind();
+	void Bind(int glnumb);
 	void Update(const Transform transform, const Camera camera);
 	int AddShader(const std::string& filevs, const std::string& filefs);
-
+	int getProgramId(int index);
 private:
-	static const unsigned int NUM_SHADERS = 2;
 	int m_programNUM = 0;
+	enum
+	{
+		SHADERS1,
+		SHADERS2,
+		NUM_SHADERS,
+	};
 	enum
 	{
 		TRANSFORM_U,
 		TIME,
 		NUM_UNIFORM,
 	};
-	GLuint m_program;
-	GLuint m_shaders[NUM_SHADERS];
-	GLuint m_uniform[NUM_UNIFORM];
+	GLuint m_program[NUM_SHADERS];
+	GLuint m_shaders[NUM_SHADERS][2];
+	GLuint m_uniform[NUM_SHADERS][NUM_UNIFORM];
 };
 

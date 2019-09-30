@@ -5,8 +5,8 @@ attribute vec3 normal;
 uniform mat4 transform;
 
 varying vec2 texCoord0;
-varying vec3 normal0;
-varying vec3 lightway;
+//varying vec3 normal0;
+//varying vec3 lightway;
 void main()
 {
     //gl_Position =  transform *vec4(position,1.0);

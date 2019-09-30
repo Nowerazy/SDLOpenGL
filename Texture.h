@@ -1,14 +1,21 @@
 #pragma once
 #include <string>
 #include "GL/glew.h"
+#include "Shader.h"
 class Texture
 {
 public:
-	Texture(const std::string&fileName);
-	void Bind();
+	Texture(Shader shader, const std::string fileName[], int texturNUm);
+	void Bind(int texnum);
 	~Texture();
 
 private:
-	GLuint m_texture;
+	enum
+	{
+		TEXTURE1,
+		TEXTURE2,
+		NUM_TEXTURE,
+	};
+	GLuint m_texture[NUM_TEXTURE];
 };
 

@@ -25,16 +25,18 @@ public:
 	Mesh(const std::string& fileName);
 	~Mesh();
 	void 	Update(vector<Vertex> vertices);
+	void DrawBG();
 	void Draw();
 private:
 	enum {
+		POSITION_BG_VB,
 		POSITION_VB,
 		TEXCOORD_VB,
 		INDEX_VB,
 		NORMALVB,
 		NUM_BUFFERS
 	};
-	GLuint m_vertexArrayObject;
+	GLuint m_vertexArrayObject[2];
 	GLuint m_vertexArrayBuffers[NUM_BUFFERS];
 	unsigned int m_drawCount;
 };
