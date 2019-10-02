@@ -18,7 +18,9 @@ int main(int argc, char** argv) {
 	Rain rainpools[RAINNUM];
 	vector<Vertex> rainVertexpools;
 	vector<Vertex> te;
+	int createdProgramNum = 0;
 	rainVertexpools.clear();
+	int program[2];
 	for (int i = 0; i < RAINNUM; i++)
 	{
 		rainpools[i].UpdateSpeed(0.01f, 0.02f, 0.1f);
@@ -41,21 +43,28 @@ int main(int argc, char** argv) {
 	unsigned int indices[] = { 6,1,7,1,7,3 };
 	unsigned int indices2[] = { 0,4,2,4,2,5 };*/
 	int re = rainVertexpools.size();
-	Shader shader("basicShader", "basicShader");
-	shader.AddShader("bgShader", "bgShader");
+	Shader shader;
+	string atrribConfig[] = { "position", "texCoord" };
+	string uniformConfig[] = { "transform","iTime" };
+	program[0] = shader.CreateProgram("basicShader", "basicShader", atrribConfig, sizeof(atrribConfig) / sizeof(atrribConfig[0]),
+		uniformConfig, sizeof(uniformConfig) / sizeof(uniformConfig[0]), &createdProgramNum);
 
 	/*Mesh mesh(rainVertexpools, rainVertexpools.size(),
 		indices0, sizeof(indices0) / sizeof(indices0[0]));
 */
-	Mesh mesh(rainVertexpools, rainVertexpools.size(),
+	Mesh mesh;
+	mesh.FillVertex(rainVertexpools, rainVertexpools.size(),
 		nullptr, rainVertexpools.size());
-	string texfiles[] = { "./res/snow.png", "./res/1.jpg" };// "./res/raindown.png" 
-	int texLength = sizeof(texfiles) / sizeof(texfiles[0]);
-	Texture texture(shader, texfiles, texLength);
+	string texfiles[] = { "./res/snow.png" };// "./res/raindown.png" , "./res/1.jpg","./res/snow.png" 
+	int  texLength = sizeof(texfiles) / sizeof(texfiles[0]);
+	Texture texture(program, texfiles, texLength);
 
-	Transform transform;
+	//Transform transform;
 	//Camera camera(glm::vec3(0, 0, -15), 70.0f, (float)HEIGHT / (float)WIDTH, 0.01f, 1000.0f);
-	Camera camera(glm::vec3(0, 0, -2), glm::radians(60.0f), (float)HEIGHT / (float)WIDTH, 0.01f, 100.0f);
+	//Camera camera(glm::vec3(0.0f, 0.f, -2.0f), glm::radians(60.0f), (float)HEIGHT / (float)WIDTH, 0.01f, 100.0f);
+	program[1] = shader.CreateBgProgram("bgShader", "bgShader", atrribConfig, 1,
+		uniformConfig, 0, &createdProgramNum);
+	mesh.FillBGVertex();
 	float count = 0.0f;
 	float  accz = 0;
 	int accZ = 0;
@@ -66,14 +75,14 @@ int main(int argc, char** argv) {
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		/*	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-			glBlendEquation(GL_FUNC_ADD);*/
-			//float sinCount = sinf(count);
-			//float cosCount = cosf(count);
-			//transform.GetPos()->x = sinCount;
-			//transform.GetRot()->x = sinCount * 1;
-			//transform.GetRot()->y = cosCount * 4;
-		/*transform.GetRot()->y = (float)display.accumuMoveSize[0] / 360;
+		/*glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+		glBlendEquation(GL_FUNC_ADD);
+		float sinCount = sinf(count);
+		float cosCount = cosf(count);
+		transform.GetPos()->x = sinCount;
+		transform.GetRot()->x = sinCount * 1;
+		transform.GetRot()->y = cosCount * 4;
+		transform.GetRot()->y = (float)display.accumuMoveSize[0] / 360;
 		transform.GetRot()->x = -(float)display.accumuMoveSize[1] / 360;
 		if (accZ != -display.accumuMoveSize[2]) {
 
@@ -94,27 +103,26 @@ int main(int argc, char** argv) {
 		transform.GetPos()->x = -(float)display.accumuMoveSize[3] / 150;
 		transform.GetPos()->y = -(float)display.accumuMoveSize[4] / 150;
 		transform.GetPos()->z += accz;*/
-		rainVertexpools.clear();
-		//std::cout << "To 76766Updated" << std::endl;
-		for (int i = 0; i < RAINNUM; i++)
-		{
-			rainpools[i].Update();
-			//std::cout << "{" << rainpools[i].tostring() << "}" << std::endl;
-			te = rainpools[i].genVertex();
-			rainVertexpools.insert(rainVertexpools.end(), te.begin(), te.end());
-		}
-		mesh.Update(rainVertexpools);
 
 		for (int i = 0; i < texLength; i++)
 		{
 			texture.Bind(i);
-			shader.Bind(i);
-			shader.Update(transform, camera);
+			shader.Bind(program[i]);
 			if (i == 1)
 			{
 				mesh.DrawBG();
 			}
 			else {
+				rainVertexpools.clear();
+				for (int i = 0; i < RAINNUM; i++)
+				{
+					rainpools[i].Update();
+					//std::cout << "{" << rainpools[i].tostring() << "}" << std::endl;
+					te = rainpools[i].genVertex();
+					rainVertexpools.insert(rainVertexpools.end(), te.begin(), te.end());
+				}
+				mesh.Update(rainVertexpools);
+				//shader.Update(transform, camera);
 				mesh.Draw();
 			}
 		}

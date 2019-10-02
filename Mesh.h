@@ -4,6 +4,10 @@
 #include<string>
 #include <vector>
 using namespace std;
+struct PosTexc {
+	glm::vec3* pos;
+	glm::vec2* tec;
+};
 class Vertex
 {
 public:
@@ -13,7 +17,12 @@ public:
 	}
 	inline glm::vec3* GetPos() { return &pos; };
 	inline glm::vec2* GetTexCoord() { return &texCoord; };
-
+	PosTexc GetPosTexc(){
+		PosTexc te;
+		te.pos = &pos;
+		te.tec = &texCoord;
+		return te;
+	};
 private:
 	glm::vec3 pos;
 	glm::vec2 texCoord;
@@ -21,19 +30,21 @@ private:
 class Mesh
 {
 public:
-	Mesh(vector<Vertex> vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices);
+	Mesh();
 	Mesh(const std::string& fileName);
 	~Mesh();
+	void FillBGVertex();
+	void FillVertex(vector<Vertex> vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices);
 	void 	Update(vector<Vertex> vertices);
 	void DrawBG();
 	void Draw();
 private:
 	enum {
-		POSITION_BG_VB,
 		POSITION_VB,
-		TEXCOORD_VB,
 		INDEX_VB,
 		NORMALVB,
+		TEXCOORD_VB,
+		BG_VB,
 		NUM_BUFFERS
 	};
 	GLuint m_vertexArrayObject[2];

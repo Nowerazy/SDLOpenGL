@@ -5,7 +5,7 @@
 class Texture
 {
 public:
-	Texture(Shader shader, const std::string fileName[], int texturNUm);
+	Texture(int programID[], const std::string fileName[], int texturNUm);
 	void Bind(int texnum);
 	~Texture();
 
