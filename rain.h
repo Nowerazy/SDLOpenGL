@@ -18,6 +18,7 @@ public:
 		//speed = speed > minspeed ? speed : minspeed;
 		x = (float)(rand() % 1920) / 1919;
 		x = x * 2.0f - 1.f;
+		z = (float)(rand() % 1920) / 1919;
 		y = 1.f + (float)(rand() % 1920) / 1919 * 3;
 	};
 	~Rain();
@@ -32,9 +33,9 @@ public:
 			y = 1.0f + height;
 		}
 		float area = 1.1f;
-		if (x<area && x>-area && y<area && y>-area&& xspeed < speed / 2)
+		if (x<area && x>-area && y<area && y>-area && xspeed < speed / 2)
 		{
-			xspeed += speed/2;
+			xspeed += speed / 2;
 		}
 		else
 		{
@@ -51,6 +52,8 @@ public:
 		te += to_string(x);
 		te += " Y:";
 		te += to_string(y);
+		te += " Z:";
+		te += to_string(z);
 		te += " Height:";
 		te += to_string(height);
 		te += " Width:";
@@ -61,16 +64,16 @@ public:
 	}
 	inline vector<Vertex> genVertex() {
 		vector<Vertex> temp;
-		temp.push_back(Vertex(glm::vec3(x, y, 0), glm::vec2(0, 0)));
-		temp.push_back(Vertex(glm::vec3(x + width, y, 0), glm::vec2(1.0, 0)));
-		temp.push_back(Vertex(glm::vec3(x, y + height, 0), glm::vec2(0, 1.0)));
-		temp.push_back(Vertex(glm::vec3(x + width, y, 0), glm::vec2(1.0, 0)));
-		temp.push_back(Vertex(glm::vec3(x, y + height, 0), glm::vec2(0, 1.0)));
-		temp.push_back(Vertex(glm::vec3(x + width, y + height, 0), glm::vec2(1.0, 1.0)));
+		temp.push_back(Vertex(glm::vec3(x, y, z), glm::vec2(0, 0)));
+		temp.push_back(Vertex(glm::vec3(x + width, y, z), glm::vec2(1.0, 0)));
+		temp.push_back(Vertex(glm::vec3(x, y + height, z), glm::vec2(0, 1.0)));
+		temp.push_back(Vertex(glm::vec3(x + width, y, z), glm::vec2(1.0, 0)));
+		temp.push_back(Vertex(glm::vec3(x, y + height, z), glm::vec2(0, 1.0)));
+		temp.push_back(Vertex(glm::vec3(x + width, y + height, z), glm::vec2(1.0, 1.0)));
 		return temp;
 	}
 private:
-	float x, y, height, width;
+	float x, y,z, height, width;
 	float speed, xspeed;
 };
 

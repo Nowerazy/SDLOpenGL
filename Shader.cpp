@@ -34,12 +34,15 @@ int Shader::CreateProgram(const std::string& fileNamevs, const std::string& file
 	CheckShaderError(newProgramID, GL_LINK_STATUS, true, "Error:Link program failed");
 	glValidateProgram(newProgramID);
 	CheckShaderError(newProgramID, GL_VALIDATE_STATUS, true, "Error:Validate program failed");
+
+	Bind(newProgramID);
 	for (int i = 0; i < uniformLength; i++)
 	{
 		m_uniform[TRANSFORM_U] = glGetUniformLocation(newProgramID, uniformConfig[i].c_str());
 		m_uniform[TIME] = glGetUniformLocation(newProgramID, uniformConfig[i].c_str());
+
+		std::cout << "{TRANSFORM_U:" << m_uniform[TRANSFORM_U] << "- TIME: " << m_uniform[TIME] << "}" << std::endl;
 	}
-	Bind(newProgramID);
 	return newProgramID;
 }
 int Shader::CreateBgProgram(const std::string& fileNamevs, const std::string& fileNamefs,
@@ -72,11 +75,14 @@ int Shader::getProgramId(int index)
 {
 	return 0;
 }
-void Shader::Update(const Transform transform, const Camera camera) {
-	//glm::mat4 mod = camera.GetViewProjection()*transform.GetModel();
-	//glUniformMatrix4fv(m_uniform[TRANSFORM_U],1,GL_FALSE, &mod[0][0]);//1:计数,这里是1
+void Shader::Update(int proID, const Transform transform, const Camera camera) {
+	glm::mat4 mod = camera.GetViewProjection() * transform.GetModel();
 	GLfloat time = (GLfloat)clock() / 1000;
-	glUniform1f(m_uniform[TIME], time);
+	m_uniform[TRANSFORM_U] = glGetUniformLocation(proID, "transform");
+	//std::cout << "{TRANSFORM_U:" << m_uniform[TRANSFORM_U] << "- TIME: " << m_uniform[TIME] << "}" << std::endl;
+	glUniformMatrix4fv(m_uniform[TRANSFORM_U], 1, GL_FALSE, &mod[0][0]);//1:计数,这里是1
+
+	//glUniform1f(m_uniform[TIME], time);
 }
 void  Shader::CleanProgramShader(int program) {
 	for (unsigned int i = 0; i < 2; i++)

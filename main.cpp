@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 	int re = rainVertexpools.size();
 	Shader shader;
 	string atrribConfig[] = { "position", "texCoord" };
-	string uniformConfig[] = { "transform","iTime" };
+	string uniformConfig[] = { "transform" };
 	program[0] = shader.CreateProgram("basicShader", "basicShader", atrribConfig, sizeof(atrribConfig) / sizeof(atrribConfig[0]),
 		uniformConfig, sizeof(uniformConfig) / sizeof(uniformConfig[0]), &createdProgramNum);
 
@@ -59,9 +59,9 @@ int main(int argc, char** argv) {
 	int  texLength = sizeof(texfiles) / sizeof(texfiles[0]);
 	Texture texture(program, texfiles, texLength);
 
-	//Transform transform;
+	Transform transform;
 	//Camera camera(glm::vec3(0, 0, -15), 70.0f, (float)HEIGHT / (float)WIDTH, 0.01f, 1000.0f);
-	//Camera camera(glm::vec3(0.0f, 0.f, -2.0f), glm::radians(60.0f), (float)HEIGHT / (float)WIDTH, 0.01f, 100.0f);
+	Camera camera(glm::vec3(0.0f, 0.f, -3.5f), glm::radians(30.0f), (float)HEIGHT / (float)WIDTH, 0.1f, 10.0f);
 	program[1] = shader.CreateBgProgram("bgShader", "bgShader", atrribConfig, 1,
 		uniformConfig, 0, &createdProgramNum);
 	mesh.FillBGVertex();
@@ -72,11 +72,12 @@ int main(int argc, char** argv) {
 	{
 		display.Clear(0.0f, 0.2f, 0.2f, 1.0f);
 
+		//glEnable(GL_DEPTH_TEST);
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		/*glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-		glBlendEquation(GL_FUNC_ADD);
+		glBlendEquation(GL_FUNC_ADD);*/
 		float sinCount = sinf(count);
 		float cosCount = cosf(count);
 		transform.GetPos()->x = sinCount;
@@ -102,7 +103,7 @@ int main(int argc, char** argv) {
 		}
 		transform.GetPos()->x = -(float)display.accumuMoveSize[3] / 150;
 		transform.GetPos()->y = -(float)display.accumuMoveSize[4] / 150;
-		transform.GetPos()->z += accz;*/
+		transform.GetPos()->z += accz;
 
 		//for (int i = texLength-1; i >=0; i--)
 		for (int i = 0; i < texLength; i++)
@@ -123,7 +124,8 @@ int main(int argc, char** argv) {
 					rainVertexpools.insert(rainVertexpools.end(), te.begin(), te.end());
 				}
 				mesh.Update(rainVertexpools);
-				//shader.Update(transform, camera);
+				//std::cout << "{" << transform.GetPos()->x <<" "<< transform.GetPos()->y << " " << transform.GetPos()->z << "}" << std::endl;
+				shader.Update(program[i],transform, camera);
 				mesh.Draw();
 			}
 		}

@@ -183,8 +183,8 @@ void Mesh::Update(vector<Vertex> vertices) {
 };
 void Mesh::DrawBG() {
 	glBindVertexArray(m_vertexArrayObject[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[BG_VB]);
-	glEnableVertexAttribArray(0);
+	/*glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[BG_VB]);
+	glEnableVertexAttribArray(0);*/
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
 }
