@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
 	Mesh mesh;
 	mesh.FillVertex(rainVertexpools, rainVertexpools.size(),
 		nullptr, rainVertexpools.size());
-	string texfiles[] = { "./res/snow.png" };// "./res/raindown.png" , "./res/1.jpg","./res/snow.png" 
+	string texfiles[] = { "./res/snow.png", "./res/1.jpg" };// "./res/raindown.png" , "./res/1.jpg","./res/snow.png" 
 	int  texLength = sizeof(texfiles) / sizeof(texfiles[0]);
 	Texture texture(program, texfiles, texLength);
 
@@ -104,6 +104,7 @@ int main(int argc, char** argv) {
 		transform.GetPos()->y = -(float)display.accumuMoveSize[4] / 150;
 		transform.GetPos()->z += accz;*/
 
+		//for (int i = texLength-1; i >=0; i--)
 		for (int i = 0; i < texLength; i++)
 		{
 			texture.Bind(i);
